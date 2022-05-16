@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_05_16_021849) do
+ActiveRecord::Schema.define(version: 2022_05_16_050636) do
 
   create_table "applications", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
     t.string "token"
@@ -18,6 +18,22 @@ ActiveRecord::Schema.define(version: 2022_05_16_021849) do
     t.integer "chats_count"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "chats", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
+    t.integer "number"
+    t.integer "messages_count"
+    t.bigint "application_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["application_id"], name: "index_chats_on_application_id"
+  end
+
+  create_table "chats_users", id: false, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
+    t.bigint "chat_id"
+    t.bigint "user_id"
+    t.index ["chat_id"], name: "index_chats_users_on_chat_id"
+    t.index ["user_id"], name: "index_chats_users_on_user_id"
   end
 
   create_table "users", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
@@ -29,4 +45,5 @@ ActiveRecord::Schema.define(version: 2022_05_16_021849) do
     t.datetime "updated_at", null: false
   end
 
+  add_foreign_key "chats", "applications"
 end
