@@ -1,0 +1,43 @@
+version: "2.2"
+services:
+  db:
+    image: mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: myapp
+      MYSQL_USER: myapp
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_PASSWORD: password
+    ports:
+      - "3308:3306"
+  #Container for Elasticsearch
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.1
+    environment:
+      - discovery.type=single-node
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+    ports:
+      - 9200:9200
+  redis:
+    image: "redis:alpine"
+  web:
+    build: .
+    command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails s -p 3000 -b '0.0.0.0'"
+    volumes:
+      - .:/myapp
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+      - elasticsearch
+      - redis
+    links:
+      - db
+      - elasticsearch
+      - redis
+    environment:
+      DB_USER: root
+      DB_PASSWORD: password
+      DB_NAME: myapp
+      DB_HOST: db
