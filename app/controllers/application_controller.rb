@@ -8,7 +8,9 @@ class ApplicationController < ActionController::API
         decoded_token = JWT.decode(token(auth_header), secret)
         payload = decoded_token.first 
         user_id = payload["user_id"]
+        return render json: { message: "Authorization token isn't correct" }, status: :forbidden unless user_id
         @user = User.find(user_id)
+        
     end
 
     def secret 
