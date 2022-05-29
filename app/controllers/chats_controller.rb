@@ -2,19 +2,19 @@ class ChatsController < ApplicationController
   before_action :set_application
   before_action :set_chat, only: [:show, :update, :destroy]
 
-  # GET /chats
+  # GET /applications/[application_app_token]/chats
   def index
-    @chats = Chat.where(application: @application)
-
+    @chats = @application.chats
+    return render json: { message: "No chats in this application" }, status: :forbidden if @chats == []
     render json: @chats
   end
 
-  # GET /chats/1
+  # GET /applications/hydhhNQx2rMLei7UgJRTPLCH/chats/[number]
   def show
     render json: @chat
   end
 
-  # POST /chats
+  # POST /applications/[application_app_token]/chats
   def create
     @chat = Chat.new
     @chat.application = @application
@@ -29,7 +29,7 @@ class ChatsController < ApplicationController
     end
   end
 
-  # PATCH/PUT /chats/1
+  # PATCH/PUT /applications/[application_app_token]/chats/[number]
   def update
     if @chat.update(chat_params)
       render json: @chat
@@ -38,18 +38,25 @@ class ChatsController < ApplicationController
     end
   end
 
-  # DELETE /chats/1
+  # DELETE /applications/[application_app_token]/chats/[number]
   def destroy
-    @chat.destroy
+    chat_number = @chat.take.number
+    @chat.take.destroy
+    @application.chats.where("number > #{chat_number}").update_all("number = number - 1")
+    @application.decrement(:chats_count)
+    @application.save
+    return render json: { message: "Chat deleted successfully" }
   end
 
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_chat
-      @chat = Chat.where("number = ? AND application_id = ?", params[:id], @application)
+      @chat = @application.chats.where(number: params[:id])
+      return render json: { message: "No chat in this application with this number" }, status: :forbidden unless @chat.exists?
     end
 
     def set_application
+      return render json: { message: "No Application found with this token" }, status: :forbidden unless Application.exists?(token: params["application_app_token"])
       @application = Application.find_by(token: params["application_app_token"])
     end
 

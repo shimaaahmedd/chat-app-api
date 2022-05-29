@@ -3,7 +3,9 @@ Rails.application.routes.draw do
   post 'register', to: 'users#create'
   post 'login', to: 'authentication#login'
   get 'logout', to: 'authentication#logout'
-  resources :user, :except => [:create]
+  put 'update', to: 'users#update'
+  delete 'delete', to: 'users#destroy'
+  resources :users, :except => [:create, :update]
   resources :applications, param: :app_token do 
     resources :chats
   end

@@ -9,7 +9,7 @@ class ApplicationsController < ApplicationController
     render json: @applications
   end
 
-  # GET /applications/1
+  # GET /applications/[application_token]
   def show
     render json: @application
   end
@@ -26,23 +26,26 @@ class ApplicationsController < ApplicationController
     end
   end
 
-  # PATCH/PUT /applications/1
+  # PATCH/PUT /applications/[application_token]
   def update
-    if @application.update(application_params)
+    if @application.update(name: application_params[:name])
       render json: @application
     else
       render json: @application.errors, status: :unprocessable_entity
     end
   end
 
-  # DELETE /applications/1
+  # DELETE /applications/[application_token]
   def destroy
     @application.destroy
+    return render json: { message: "Application deleted successfully" }
+
   end
 
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_application
+      return render json: { message: "No Application found with this token" }, status: :forbidden unless Application.exists?(token: params[:app_token])
       @application = Application.find_by(token: params[:app_token])
     end
 

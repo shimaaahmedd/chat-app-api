@@ -1,6 +1,7 @@
 class AuthenticationController < ApplicationController
     skip_before_action :authenticate, only: [:login, :logout]
 
+    # POST /login
     def login
         @user = User.find_by(email: params[:email])
         if @user
@@ -24,8 +25,10 @@ class AuthenticationController < ApplicationController
         end
     end
 
+    # GET /logout
     def logout
         request.headers["Authorization"] = ''
         render json: { message: "logged out"}
+        @user = nil
     end
 end

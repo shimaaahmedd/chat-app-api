@@ -1,5 +1,5 @@
 class UsersController < ApplicationController
-  before_action :set_user, only: [:show, :update, :destroy]
+  before_action :set_user, only: [:show]
   skip_before_action :authenticate, only: [:create]
 
 
@@ -15,7 +15,7 @@ class UsersController < ApplicationController
     render json: @user
   end
 
-  # POST /users
+  # POST /register
   def create
     @user = User.new(user_params)
     payload = { user_id: @user.id}
@@ -27,7 +27,7 @@ class UsersController < ApplicationController
     end
   end
 
-  # PATCH/PUT /users/1
+  # PUT /update
   def update
     if @user.update(user_params)
       render json: @user
@@ -36,14 +36,16 @@ class UsersController < ApplicationController
     end
   end
 
-  # DELETE /users/1
+  # DELETE /delete
   def destroy
     @user.destroy
+    redirect_to logout_path
   end
 
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_user
+      return render json: { message: "No user found with this ID" }, status: :forbidden unless User.exists?(params[:id])
       @user = User.find(params[:id])
     end
 
