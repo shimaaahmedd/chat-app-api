@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
   
+  resources :messages
   post 'register', to: 'users#create'
   post 'login', to: 'authentication#login'
   get 'logout', to: 'authentication#logout'
@@ -7,7 +8,9 @@ Rails.application.routes.draw do
   delete 'delete', to: 'users#destroy'
   resources :users, :except => [:create, :update]
   resources :applications, param: :app_token do 
-    resources :chats
+    resources :chats do
+      resources :messages
+    end  
   end
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_05_16_050636) do
+ActiveRecord::Schema.define(version: 2022_05_29_201713) do
 
   create_table "applications", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
     t.string "token"
@@ -36,6 +36,17 @@ ActiveRecord::Schema.define(version: 2022_05_16_050636) do
     t.index ["user_id"], name: "index_chats_users_on_user_id"
   end
 
+  create_table "messages", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
+    t.text "body"
+    t.integer "number"
+    t.bigint "chat_id"
+    t.bigint "user_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["chat_id"], name: "index_messages_on_chat_id"
+    t.index ["user_id"], name: "index_messages_on_user_id"
+  end
+
   create_table "users", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
     t.string "email"
     t.string "password_digest"
@@ -46,4 +57,6 @@ ActiveRecord::Schema.define(version: 2022_05_16_050636) do
   end
 
   add_foreign_key "chats", "applications"
+  add_foreign_key "messages", "chats"
+  add_foreign_key "messages", "users"
 end
