@@ -2,7 +2,6 @@ version: "2.2"
 services:
   db:
     image: mysql
-    restart: always
     environment:
       MYSQL_DATABASE: myapp
       MYSQL_USER: myapp
@@ -19,8 +18,20 @@ services:
       - bootstrap.memory_lock=true
     ports:
       - 9200:9200
+      
   redis:
-    image: "redis:alpine"
+    image: redis
+    ports:
+      - 6379:6379
+    command: redis-server
+
+  kibana:
+    image: kibana:7.10.1
+    ports:
+      - 5601:5601
+    depends_on:
+      - elasticsearch
+
   web:
     build: .
     command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails s -p 3000 -b '0.0.0.0'"
@@ -43,3 +54,25 @@ services:
       DB_PASSWORD: password
       DB_NAME: myapp
       DB_HOST: db
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+  sidekiq:
+    depends_on:
+      - db
+      - redis
+    build: .
+    command: bundle exec sidekiq
+    volumes:
+      - '.:/myapp'
+      - '/myapp/tmp' # don't mount tmp directory
+    environment:
+      DB_USER: root
+      DB_PASSWORD: password
+      DB_NAME: myapp
+      DB_HOST: db
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+
+
+volumes:
+  redis:
+  db:
+  elasticsearch:
