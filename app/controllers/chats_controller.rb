@@ -1,38 +1,28 @@
 class ChatsController < ApplicationController
   before_action :set_application
-  before_action :set_chat, only: [:show, :update, :destroy]
+  before_action :set_chat, :check_user, only: [:show, :update, :destroy, :search, :add_users]
 
   # GET /applications/[application_app_token]/chats
   def index
-    @chats = @application.chats
-    return render json: { message: "No chats in this application" }, status: :forbidden if @chats == []
-    render json: @chats
+    chats = @application.chats
+    return render json: { message: "No chats in this application" }, status: :forbidden if chats == []
+    render json: chats.to_json(only: [:number, :messages_count])
   end
 
   # GET /applications/hydhhNQx2rMLei7UgJRTPLCH/chats/[number]
   def show
-    render json: @chat
+    render json: @chat.to_json(only: [:number, :messages_count])
   end
 
   # POST /applications/[application_app_token]/chats
   def create
-    @chat = Chat.new
-    @chat.application = @application
-    @chat.number = @application.chats_count + 1
-    @chat.messages_count = 0
-
-    if @chat.save
-      @application.update(chats_count: @chat.number)
-      render json: @chat, status: :created, location: "application_#{@chat}"
-    else
-      render json: @chat.errors, status: :unprocessable_entity
-    end
+    ChatWorkerJob.perform_async(@application.id, @user.id)
   end
 
   # PATCH/PUT /applications/[application_app_token]/chats/[number]
   def update
     if @chat.update(chat_params)
-      render json: @chat
+      render json: @chat.to_json(only: [:number, :messages_count])
     else
       render json: @chat.errors, status: :unprocessable_entity
     end
@@ -48,10 +38,23 @@ class ChatsController < ApplicationController
     return render json: { message: "Chat deleted successfully" }
   end
 
+  def search
+   
+    return render json: @chat.take.messages.search(params[:search_body])
+  end
+
+  def add_users
+    return render json: { message: "No user found with this email" }, status: :forbidden unless User.exists?(email: params[:user_email])
+    user = User.find_by(email: params[:user_email])
+    return render json: { message: "User is already a member in this chat" }, status: :forbidden if @chat.take.users.exists?(user.id)
+    @chat.take.users << user
+    return render json: { message: "User added to chat successfully" }
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_chat
-      @chat = @application.chats.where(number: params[:id])
+      @chat = @application.chats.where(number: params[:number])
       return render json: { message: "No chat in this application with this number" }, status: :forbidden unless @chat.exists?
     end
 
@@ -63,5 +66,9 @@ class ChatsController < ApplicationController
     # Only allow a trusted parameter "white list" through.
     def chat_params
       params.require(:chat).permit(:number, :messages_count, :application_id)
+    end
+
+    def check_user
+      return render json: { message: "User cannot access this chat" }, status: :forbidden unless @chat.take.users.exists?(@user.id)
     end
 end
