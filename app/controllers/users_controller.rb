@@ -6,13 +6,18 @@ class UsersController < ApplicationController
   # GET /users
   def index
     @users = User.all
-
-    render json: @users
+    render json: @users.to_json(only: [:email, :first_name, :second_name])
   end
 
   # GET /users/1
   def show
-    render json: @user
+    render json:
+    {
+        email: @user.email,
+        first_name: @user.first_name,
+        second_name: @user.second_name,
+        token: token
+    }
   end
 
   # POST /register
@@ -21,7 +26,13 @@ class UsersController < ApplicationController
     payload = { user_id: @user.id}
     token = create_token(payload)
     if @user.save
-      render json: {user: @user, token: token}, status: :created, location: @user
+      render json: 
+       {
+          email: @user.email,
+          first_name: @user.first_name,
+          second_name: @user.second_name,
+          token: token
+       }, status: :created, location: @user
     else
       render json: @user.errors, status: :unprocessable_entity
     end
@@ -30,7 +41,12 @@ class UsersController < ApplicationController
   # PUT /update
   def update
     if @user.update(user_params)
-      render json: @user
+      render json: {
+        email: @user.email,
+        first_name: @user.first_name,
+        second_name: @user.second_name,
+        token: token
+     }
     else
       render json: @user.errors, status: :unprocessable_entity
     end

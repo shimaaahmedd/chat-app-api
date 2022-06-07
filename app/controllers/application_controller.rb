@@ -5,7 +5,12 @@ class ApplicationController < ActionController::API
     def authenticate
         return render json: { message: "No Authorization header sent" }, status: :forbidden unless request.headers["Authorization"]
         auth_header = request.headers["Authorization"]
-        decoded_token = JWT.decode(token(auth_header), secret)
+        begin
+            decoded_token = JWT.decode(token(auth_header), secret)
+        rescue => e 
+            return render json: { message: "Invalid Auhtorization segment" }
+        end
+
         payload = decoded_token.first 
         user_id = payload["user_id"]
         return render json: { message: "No user found with this token" }, status: :forbidden unless User.exists?(user_id)
