@@ -1,5 +1,5 @@
 class MessagesController < ApplicationController
-  before_action :set_application, :set_chat
+  before_action :set_application, :set_chat, :check_user
   before_action :set_message, only: [:show, :update, :destroy]
 
   # GET /applications/[application_app_token]/chats/[chat_number]/messages
@@ -56,6 +56,10 @@ class MessagesController < ApplicationController
       @message = @chat.messages.where(number: params[:number])
       return render json: { message: "No message in this chat with this number" }, status: :forbidden unless @message.exists?
 
+    end
+
+    def check_user
+      return render json: { message: "User cannot access this chat" }, status: :forbidden unless @chat.users.exists?(@user.id)
     end
 
     # Only allow a trusted parameter "white list" through.

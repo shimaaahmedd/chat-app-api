@@ -4,7 +4,8 @@ Rails.application.routes.draw do
   get 'logout', to: 'authentication#logout'
   put 'update', to: 'users#update'
   delete 'delete', to: 'users#destroy'
-  resources :users, :except => [:create, :update]
+  get 'my_chats', to: 'users#my_chats'
+  resources :users, :except => [:create, :update, :destroy]
   resources :applications, param: :app_token do 
     resources :chats, param: :number do
       member do

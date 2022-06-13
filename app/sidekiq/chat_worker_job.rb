@@ -9,6 +9,7 @@ class ChatWorkerJob
       user = User.find(user_id)
       number = application.chats_count + 1
       application_chat = application.chats.create!(number:number, messages_count: 0)
+      application_chat.users << user
       application.update(chats_count: number)
     end
   end

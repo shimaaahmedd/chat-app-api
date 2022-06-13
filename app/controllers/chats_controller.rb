@@ -39,8 +39,9 @@ class ChatsController < ApplicationController
   end
 
   def search
-   
-    return render json: @chat.take.messages.search(params[:search_body])
+    response = @chat.take.messages.search(params[:search_body]).records
+    return render json: { message: "No records found" }, status: :forbidden if response.empty?
+    return render json: response.to_json(only: [:number, :body])
   end
 
   def add_users

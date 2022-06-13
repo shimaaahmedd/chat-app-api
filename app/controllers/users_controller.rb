@@ -1,5 +1,5 @@
 class UsersController < ApplicationController
-  before_action :set_user, only: [:show]
+  before_action :set_user, except: [:create, :my_chats]
   skip_before_action :authenticate, only: [:create]
 
 
@@ -56,6 +56,12 @@ class UsersController < ApplicationController
   def destroy
     @user.destroy
     redirect_to logout_path
+  end
+
+  # GET /my_chats
+  def my_chats
+    return render json: { message: "You have no chats" }, status: :forbidden if @user.chats.empty?
+    return render json:  @user.chats.to_json(include: {application: {only: [:token, :name]}}, only: [:number, :messages_count])
   end
 
   private
