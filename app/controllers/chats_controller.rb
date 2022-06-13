@@ -38,11 +38,15 @@ class ChatsController < ApplicationController
     return render json: { message: "Chat deleted successfully" }
   end
 
+    # GET /applications/[application_app_token]/chats/[number]/search
+
   def search
     response = @chat.take.messages.search(params[:search_body]).records
     return render json: { message: "No records found" }, status: :forbidden if response.empty?
     return render json: response.to_json(only: [:number, :body])
   end
+
+    # POST /applications/[application_app_token]/chats/[number]/add_users
 
   def add_users
     return render json: { message: "No user found with this email" }, status: :forbidden unless User.exists?(email: params[:user_email])

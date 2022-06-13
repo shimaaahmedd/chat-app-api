@@ -51,3 +51,6 @@ gem 'elasticsearch-rails'
 
 # Fake emails and names
 gem 'faker'
+
+# for queueing 
+gem 'sidekiq'

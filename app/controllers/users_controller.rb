@@ -1,6 +1,6 @@
 class UsersController < ApplicationController
-  before_action :set_user, except: [:create, :my_chats]
   skip_before_action :authenticate, only: [:create]
+  before_action :set_user, only: [:show]
 
 
   # GET /users
@@ -13,19 +13,18 @@ class UsersController < ApplicationController
   def show
     render json:
     {
-        email: @user.email,
-        first_name: @user.first_name,
-        second_name: @user.second_name,
-        token: token
+        email: @user_to_show.email,
+        first_name: @user_to_show.first_name,
+        second_name: @user_to_show.second_name,
     }
   end
 
   # POST /register
   def create
     @user = User.new(user_params)
-    payload = { user_id: @user.id}
-    token = create_token(payload)
     if @user.save
+      payload = { user_id: @user.id}
+      token = create_token(payload)
       render json: 
        {
           email: @user.email,
@@ -45,7 +44,6 @@ class UsersController < ApplicationController
         email: @user.email,
         first_name: @user.first_name,
         second_name: @user.second_name,
-        token: token
      }
     else
       render json: @user.errors, status: :unprocessable_entity
@@ -68,7 +66,7 @@ class UsersController < ApplicationController
     # Use callbacks to share common setup or constraints between actions.
     def set_user
       return render json: { message: "No user found with this ID" }, status: :forbidden unless User.exists?(params[:id])
-      @user = User.find(params[:id])
+      @user_to_show = User.find(params[:id])
     end
 
     # Only allow a trusted parameter "white list" through.
