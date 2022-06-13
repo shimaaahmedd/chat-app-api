@@ -4,11 +4,6 @@ module Searchable
         include Elasticsearch::Model
         include Elasticsearch::Model::Callbacks
 
-        unless Message.__elasticsearch__.index_exists?
-            Message.__elasticsearch__.create_index!
-        end
-        Message.import
-
         settings :analysis => {
                 :filter => {
                     :ngram_filter => {
@@ -34,9 +29,8 @@ module Searchable
             mapping dynamic: false do
                 indexes :body, type: :text, analyzer: 'ngram_analyzer'
             end
-            
-        end  
-        
+        end 
+
         def self.search(query)
             __elasticsearch__.search(
                 {
@@ -56,5 +50,10 @@ module Searchable
         def as_indexed_json(options = nil)
             self.as_json( only: [ :number, :body] )
         end
+
+        unless Message.__elasticsearch__.index_exists?
+            Message.__elasticsearch__.create_index!
+        end
+        Message.import
     end
 end
