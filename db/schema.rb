@@ -12,7 +12,7 @@
 
 ActiveRecord::Schema.define(version: 2022_05_29_201713) do
 
-  create_table "applications", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
+  create_table "applications", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "token"
     t.string "name"
     t.integer "chats_count"
@@ -20,7 +20,7 @@ ActiveRecord::Schema.define(version: 2022_05_29_201713) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "chats", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
+  create_table "chats", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.integer "number"
     t.integer "messages_count"
     t.bigint "application_id"
@@ -29,14 +29,14 @@ ActiveRecord::Schema.define(version: 2022_05_29_201713) do
     t.index ["application_id"], name: "index_chats_on_application_id"
   end
 
-  create_table "chats_users", id: false, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
+  create_table "chats_users", id: false, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "chat_id"
     t.bigint "user_id"
     t.index ["chat_id"], name: "index_chats_users_on_chat_id"
     t.index ["user_id"], name: "index_chats_users_on_user_id"
   end
 
-  create_table "messages", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
+  create_table "messages", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.text "body"
     t.integer "number"
     t.bigint "chat_id"
@@ -47,7 +47,7 @@ ActiveRecord::Schema.define(version: 2022_05_29_201713) do
     t.index ["user_id"], name: "index_messages_on_user_id"
   end
 
-  create_table "users", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
+  create_table "users", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "email"
     t.string "password_digest"
     t.string "first_name"
